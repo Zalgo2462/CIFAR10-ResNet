@@ -81,12 +81,13 @@ def conv2d_fixed_padding(inputs, filters, kernel_size, strides, data_format):
   """Strided 2-D convolution with explicit padding."""
   # The padding is consistent and is based only on `kernel_size`, not on the
   # dimensions of `inputs` (as opposed to using `tf.layers.conv2d` alone).
+  # https://stackoverflow.com/questions/47745397/why-use-fixed-padding-when-building-resnet-model-in-tensorflow
   if strides > 1:
     inputs = fixed_padding(inputs, kernel_size, data_format)
 
   return tf.layers.conv2d(
       inputs=inputs, filters=filters, kernel_size=kernel_size, strides=strides,
-      padding=('SAME' if strides == 1 else 'VALID'), use_bias=False,
+      padding=('VALID' if strides > 1 else 'SAME'), use_bias=False,
       kernel_initializer=tf.variance_scaling_initializer(),
       data_format=data_format)
 
@@ -151,8 +152,7 @@ def block_layer(inputs, filters, block_fn, blocks, strides, is_training, name,
   Returns:
     The output tensor of the block layer.
   """
-  # Bottleneck blocks end with 4x the number of filters as they start with
-  filters_out = 4 * filters if block_fn is bottleneck_block else filters
+  filters_out = filters
 
   def projection_shortcut(inputs):
     return conv2d_fixed_padding(

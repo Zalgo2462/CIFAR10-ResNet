@@ -4,3 +4,4 @@ backup_models/
 __pycache__/
 *.pyc
 *.swp
+.idea/
