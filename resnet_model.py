@@ -130,8 +130,7 @@ def building_block(inputs, filters, is_training, projection_shortcut, strides,
 
   return inputs + shortcut
 
-# TODO: remove block_fn and references to bottleneck_block
-def block_layer(inputs, filters, block_fn, blocks, strides, is_training, name,
+def block_layer(inputs, filters, blocks, strides, is_training, name,
                 data_format):
   """Creates one layer of blocks for the ResNet model.
 
@@ -139,8 +138,6 @@ def block_layer(inputs, filters, block_fn, blocks, strides, is_training, name,
     inputs: A tensor of size [batch, channels, height_in, width_in] or
       [batch, height_in, width_in, channels] depending on data_format.
     filters: The number of filters for the first convolution of the layer.
-    block_fn: The block to use within the model, either `building_block` or
-      `bottleneck_block`.
     blocks: The number of blocks contained in the layer.
     strides: The stride to use for the first convolution of the layer. If
       greater than 1, this layer will ultimately downsample the input.
@@ -152,19 +149,18 @@ def block_layer(inputs, filters, block_fn, blocks, strides, is_training, name,
   Returns:
     The output tensor of the block layer.
   """
-  filters_out = filters
 
   def projection_shortcut(inputs):
     return conv2d_fixed_padding(
-        inputs=inputs, filters=filters_out, kernel_size=1, strides=strides,
+        inputs=inputs, filters=filters, kernel_size=1, strides=strides,
         data_format=data_format)
 
   # Only the first block per block_layer uses projection_shortcut and strides
-  inputs = block_fn(inputs, filters, is_training, projection_shortcut, strides,
+  inputs = building_block(inputs, filters, is_training, projection_shortcut, strides,
                     data_format)
 
   for _ in range(1, blocks):
-    inputs = block_fn(inputs, filters, is_training, None, 1, data_format)
+    inputs = building_block(inputs, filters, is_training, None, 1, data_format)
 
   return tf.identity(inputs, name)
 
@@ -209,15 +205,15 @@ def cifar10_resnet_v2_generator(resnet_size, num_classes, data_format=None):
     inputs = tf.identity(inputs, 'initial_conv')
 
     inputs = block_layer(
-        inputs=inputs, filters=16, block_fn=building_block, blocks=num_blocks,
+        inputs=inputs, filters=16, blocks=num_blocks,
         strides=1, is_training=is_training, name='block_layer1',
         data_format=data_format)
     inputs = block_layer(
-        inputs=inputs, filters=32, block_fn=building_block, blocks=num_blocks,
+        inputs=inputs, filters=32, blocks=num_blocks,
         strides=2, is_training=is_training, name='block_layer2',
         data_format=data_format)
     inputs = block_layer(
-        inputs=inputs, filters=64, block_fn=building_block, blocks=num_blocks,
+        inputs=inputs, filters=64, blocks=num_blocks,
         strides=2, is_training=is_training, name='block_layer3',
         data_format=data_format)
 
