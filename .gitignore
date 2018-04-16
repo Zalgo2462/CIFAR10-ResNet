@@ -1,0 +1,6 @@
+cifar10_data/
+cifar10_model/
+backup_models/
+__pycache__/
+*.pyc
+*.swp
