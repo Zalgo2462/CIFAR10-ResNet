@@ -82,12 +82,14 @@ def conv2d_fixed_padding(inputs, filters, kernel_size, strides, data_format):
     # The padding is consistent and is based only on `kernel_size`, not on the
     # dimensions of `inputs` (as opposed to using `tf.layers.conv2d` alone).
     # https://stackoverflow.com/questions/47745397/why-use-fixed-padding-when-building-resnet-model-in-tensorflow
-    if strides > 1:
-        inputs = fixed_padding(inputs, kernel_size, data_format)
+    # https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/kernels/eigen_spatial_convolutions.h#L932
+    #if strides > 1:
+    #    inputs = fixed_padding(inputs, kernel_size, data_format)
 
     return tf.layers.conv2d(
         inputs=inputs, filters=filters, kernel_size=kernel_size, strides=strides,
-        padding=('VALID' if strides > 1 else 'SAME'), use_bias=False,
+        #padding=('VALID' if strides > 1 else 'SAME'), use_bias=False,
+        padding='SAME', use_bias=False,
         kernel_initializer=tf.variance_scaling_initializer(),
         data_format=data_format)
 
