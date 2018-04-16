@@ -50,50 +50,6 @@ def batch_norm_relu(inputs, is_training, data_format):
     return inputs
 
 
-def fixed_padding(inputs, kernel_size, data_format):
-    """Pads the input along the spatial dimensions independently of input size.
-
-    Args:
-      inputs: A tensor of size [batch, channels, height_in, width_in] or
-        [batch, height_in, width_in, channels] depending on data_format.
-      kernel_size: The kernel to be used in the conv2d or max_pool2d operation.
-                   Should be a positive integer.
-      data_format: The input format ('channels_last' or 'channels_first').
-
-    Returns:
-      A tensor with the same format as the input with the data either intact
-      (if kernel_size == 1) or padded (if kernel_size > 1).
-    """
-    pad_total = kernel_size - 1
-    pad_beg = pad_total // 2
-    pad_end = pad_total - pad_beg
-
-    if data_format == 'channels_first':
-        padded_inputs = tf.pad(inputs, [[0, 0], [0, 0],
-                                        [pad_beg, pad_end], [pad_beg, pad_end]])
-    else:
-        padded_inputs = tf.pad(inputs, [[0, 0], [pad_beg, pad_end],
-                                        [pad_beg, pad_end], [0, 0]])
-    return padded_inputs
-
-
-def conv2d_fixed_padding(inputs, filters, kernel_size, strides, data_format):
-    """Strided 2-D convolution with explicit padding."""
-    # The padding is consistent and is based only on `kernel_size`, not on the
-    # dimensions of `inputs` (as opposed to using `tf.layers.conv2d` alone).
-    # https://stackoverflow.com/questions/47745397/why-use-fixed-padding-when-building-resnet-model-in-tensorflow
-    # https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/kernels/eigen_spatial_convolutions.h#L932
-    #if strides > 1:
-    #    inputs = fixed_padding(inputs, kernel_size, data_format)
-
-    return tf.layers.conv2d(
-        inputs=inputs, filters=filters, kernel_size=kernel_size, strides=strides,
-        #padding=('VALID' if strides > 1 else 'SAME'), use_bias=False,
-        padding='SAME', use_bias=False,
-        kernel_initializer=tf.variance_scaling_initializer(),
-        data_format=data_format)
-
-
 def building_block(inputs, filters, is_training, projection_shortcut, strides,
                    data_format):
     """Standard building block for residual networks with BN before convolutions.
@@ -121,13 +77,18 @@ def building_block(inputs, filters, is_training, projection_shortcut, strides,
     if projection_shortcut is not None:
         shortcut = projection_shortcut(inputs)
 
-    inputs = conv2d_fixed_padding(
+    inputs = tf.layers.conv2d(
         inputs=inputs, filters=filters, kernel_size=3, strides=strides,
+        padding='SAME', use_bias=False,
+        kernel_initializer=tf.variance_scaling_initializer(),
         data_format=data_format)
 
     inputs = batch_norm_relu(inputs, is_training, data_format)
-    inputs = conv2d_fixed_padding(
+
+    inputs = tf.layers.conv2d(
         inputs=inputs, filters=filters, kernel_size=3, strides=1,
+        padding='SAME', use_bias=False,
+        kernel_initializer=tf.variance_scaling_initializer(),
         data_format=data_format)
 
     return inputs + shortcut
@@ -154,8 +115,10 @@ def block_layer(inputs, filters, blocks, strides, is_training, name,
     """
 
     def projection_shortcut(inputs):
-        return conv2d_fixed_padding(
+        return tf.layers.conv2d(
             inputs=inputs, filters=filters, kernel_size=1, strides=strides,
+            padding='SAME', use_bias=False,
+            kernel_initializer=tf.variance_scaling_initializer(),
             data_format=data_format)
 
     # Only the first block per block_layer uses projection_shortcut and strides
@@ -202,8 +165,10 @@ def cifar10_resnet_v2_generator(resnet_size, num_classes, data_format=None):
             # https://www.tensorflow.org/performance/performance_guide#data_formats
             inputs = tf.transpose(inputs, [0, 3, 1, 2])
 
-        inputs = conv2d_fixed_padding(
+        inputs = tf.layers.conv2d(
             inputs=inputs, filters=16, kernel_size=3, strides=1,
+            padding='SAME', use_bias=False,
+            kernel_initializer=tf.variance_scaling_initializer(),
             data_format=data_format)
         inputs = tf.identity(inputs, 'initial_conv')
 
