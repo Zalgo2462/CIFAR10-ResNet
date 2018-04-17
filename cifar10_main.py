@@ -235,7 +235,7 @@ def cifar10_model_fn(features, labels, mode, params):
             momentum=_MOMENTUM)
         """
 
-        optimizer = tf.train.AdamOptimizer(learning_rate=0.1)
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
 
         # Batch norm requires update ops to be added as a dependency to the train_op
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
