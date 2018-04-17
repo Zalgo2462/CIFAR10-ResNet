@@ -212,7 +212,6 @@ def cifar10_model_fn(features, labels, mode, params):
 
     if mode == tf.estimator.ModeKeys.TRAIN:
 
-
         # Scale the learning rate linearly with the batch size. When the batch size
         # is 128, the learning rate should be 0.1.
         initial_learning_rate = 0.1 * params['batch_size'] / 128
@@ -277,7 +276,7 @@ def main(unused_argv):
 
     for _ in range(FLAGS.train_epochs // FLAGS.epochs_per_eval):
         tensors_to_log = {
-            'learning_rate': 'learning_rate',
+            # 'learning_rate': 'learning_rate',
             'cross_entropy': 'cross_entropy',
             'train_accuracy': 'train_accuracy'
         }
