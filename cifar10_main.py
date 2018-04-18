@@ -230,8 +230,8 @@ def cifar10_model_fn(features, labels, mode, params):
         learning_rate = initial_learning_rate * tf.pow(
             _LEARNING_RATE_DECAY_RATE,
             tf.floordiv(
-                1 + global_step,
-                int(_LEARNING_RATE_DECAY_EPOCHS * batches_per_epoch)
+                1.0 + tf.cast(global_step, tf.float32),
+                _LEARNING_RATE_DECAY_EPOCHS * batches_per_epoch
             )
         )
 
