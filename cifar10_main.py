@@ -215,9 +215,9 @@ def cifar10_model_fn(features, labels, mode, params):
         # Scale the learning rate linearly with the batch size. When the batch size
         # is 128, the learning rate should be 0.1.
         global_step = tf.train.get_or_create_global_step()
-
-        """
-        initial_learning_rate = 0.1 * params['batch_size'] / 128
+       
+        # initial_learning_rate = 0.1 * params['batch_size'] / 128
+        initial_learning_rate = 0.001
         batches_per_epoch = _NUM_IMAGES['train'] / params['batch_size']
 
         # Multiply the learning rate by 0.1 at 100, 150, and 200 epochs.
@@ -230,12 +230,13 @@ def cifar10_model_fn(features, labels, mode, params):
         tf.identity(learning_rate, name='learning_rate')
         tf.summary.scalar('learning_rate', learning_rate)
 
+        """
         optimizer = tf.train.MomentumOptimizer(
             learning_rate=learning_rate,
             momentum=_MOMENTUM)
         """
 
-        optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
+        optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
 
         # Batch norm requires update ops to be added as a dependency to the train_op
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
