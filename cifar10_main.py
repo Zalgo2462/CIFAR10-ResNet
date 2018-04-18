@@ -65,6 +65,8 @@ _NUM_DATA_FILES = 5
 # was originally suggested.
 _WEIGHT_DECAY = 2e-4
 _MOMENTUM = 0.9
+_LEARNING_RATE_DECAY_RATE = 0.75
+_LEARNING_RATE_DECAY_EPOCHS = 10
 
 _NUM_IMAGES = {
     'train': 50000,
@@ -217,11 +219,21 @@ def cifar10_model_fn(features, labels, mode, params):
         batches_per_epoch = _NUM_IMAGES['train'] / params['batch_size']
         global_step = tf.train.get_or_create_global_step()
 
+        """
         # Multiply the learning rate by 0.1 at 100, 150, and 200 epochs.
         boundaries = [int(batches_per_epoch * epoch) for epoch in [100, 150, 200]]
         values = [initial_learning_rate * decay for decay in [1, 0.1, 0.01, 0.001]]
         learning_rate = tf.train.piecewise_constant(
             tf.cast(global_step, tf.int32), boundaries, values)
+        """
+
+        learning_rate = initial_learning_rate * tf.math_ops.pow(
+            _LEARNING_RATE_DECAY_RATE,
+            tf.math_ops.floordiv(
+                1 + global_step,
+                _LEARNING_RATE_DECAY_EPOCHS * batches_per_epoch
+            )
+        )
 
         # Create a tensor named learning_rate for logging purposes
         tf.identity(learning_rate, name='learning_rate')
