@@ -227,9 +227,9 @@ def cifar10_model_fn(features, labels, mode, params):
             tf.cast(global_step, tf.int32), boundaries, values)
         """
 
-        learning_rate = initial_learning_rate * tf.math_ops.pow(
+        learning_rate = initial_learning_rate * tf.pow(
             _LEARNING_RATE_DECAY_RATE,
-            tf.math_ops.floordiv(
+            tf.floordiv(
                 1 + global_step,
                 _LEARNING_RATE_DECAY_EPOCHS * batches_per_epoch
             )
