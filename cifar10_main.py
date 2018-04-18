@@ -231,7 +231,7 @@ def cifar10_model_fn(features, labels, mode, params):
             _LEARNING_RATE_DECAY_RATE,
             tf.floordiv(
                 1 + global_step,
-                _LEARNING_RATE_DECAY_EPOCHS * batches_per_epoch
+                int(_LEARNING_RATE_DECAY_EPOCHS * batches_per_epoch)
             )
         )
 
