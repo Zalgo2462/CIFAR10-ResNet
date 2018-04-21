@@ -15,7 +15,7 @@
 # This is a derivative work created by Logan Lembke.
 #
 # ==============================================================================
-"""Runs a ResNet model on the CIFAR-10 dataset."""
+"""Runs a Linear Multi-step ResNet model on the CIFAR-10 dataset."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -255,7 +255,7 @@ def cifar10_model_fn(features, labels, mode, params):
         eval_metric_ops=metrics)
 
 
-def main(unused_argv):
+def main():
     # Using the Winograd non-fused algorithms provides a small performance boost.
     os.environ['TF_ENABLE_WINOGRAD_NONFUSED'] = '1'
 

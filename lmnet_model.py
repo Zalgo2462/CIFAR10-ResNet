@@ -1,3 +1,24 @@
+"""Contains definitions for Linear Multi-step Residual Networks.
+
+Residual networks (ResNets) were originally proposed in:
+[1] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+    Deep Residual Learning for Image Recognition. arXiv:1512.03385
+
+The full preactivation 'v2' ResNet variant implemented in this module was
+introduced by:
+[2] Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun
+    Identity Mappings in Deep Residual Networks. arXiv: 1603.05027
+
+The key difference of the full preactivation 'v2' variant compared to the
+'v1' variant in [1] is the use of batch normalization before every weight layer
+rather than after.
+
+Linear Multi-step networks (LM-Architecture) were proposed in:
+[3] Yiping Lu, Aoxiao Zhong, Quanzheng Li, Bin Dong
+    Beyond Finite Layer Neural Networks:
+        Bridging Deep Architectures and Numerical Differential Equations. arXiv:1710.10121
+"""
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
