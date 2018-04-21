@@ -38,7 +38,7 @@ parser.add_argument('--model_dir', type=str, default='./cifar10_model',
 parser.add_argument('--resnet_size', type=int, default=32,
                     help='The size of the ResNet model to use.')
 
-parser.add_argument('--train_epochs', type=int, default=250,
+parser.add_argument('--train_epochs', type=int, default=160,
                     help='The number of epochs to train.')
 
 parser.add_argument('--epochs_per_eval', type=int, default=10,
@@ -61,9 +61,7 @@ _DEPTH = 3
 _NUM_CLASSES = 10
 _NUM_DATA_FILES = 5
 
-# We use a weight decay of 0.0002, which performs better than the 0.0001 that
-# was originally suggested.
-_WEIGHT_DECAY = 2e-4
+_WEIGHT_DECAY = 1e-4
 _MOMENTUM = 0.9
 
 _NUM_IMAGES = {
@@ -218,8 +216,8 @@ def cifar10_model_fn(features, labels, mode, params):
         global_step = tf.train.get_or_create_global_step()
 
         # Multiply the learning rate by 0.1 at 100, 150, and 200 epochs.
-        boundaries = [int(batches_per_epoch * epoch) for epoch in [100, 150, 200]]
-        values = [initial_learning_rate * decay for decay in [1, 0.1, 0.01, 0.001]]
+        boundaries = [int(batches_per_epoch * epoch) for epoch in [80, 120]]
+        values = [initial_learning_rate * decay for decay in [1, 0.1, 0.01]]
         learning_rate = tf.train.piecewise_constant(
             tf.cast(global_step, tf.int32), boundaries, values)
 
