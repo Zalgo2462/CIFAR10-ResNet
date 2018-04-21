@@ -24,7 +24,7 @@ import sys
 
 import tensorflow as tf
 
-import resnet_model
+import lmnet_model
 
 parser = argparse.ArgumentParser()
 
@@ -186,7 +186,7 @@ def cifar10_model_fn(features, labels, mode, params):
     """Model function for CIFAR-10."""
     tf.summary.image('images', features, max_outputs=6)
 
-    network = resnet_model.cifar10_resnet_v2_generator(
+    network = lmnet_model.cifar10_lmnet_v2_generator(
         params['resnet_size'], _NUM_CLASSES, params['data_format'])
 
     inputs = tf.reshape(features, [-1, _HEIGHT, _WIDTH, _DEPTH])
