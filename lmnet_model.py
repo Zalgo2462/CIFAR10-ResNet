@@ -20,7 +20,7 @@ def batch_norm_relu(prev, is_training, data_format):
     return prev
 
 
-def building_block(prev2, prev, filters, is_training, projection_shortcut, strides,
+def building_block(prev2, prev, filters, is_training, projection_shortcut_2, projection_shortcut_1, strides,
                    data_format):
     """Standard building block for residual networks with BN before convolutions.
 
@@ -32,7 +32,9 @@ def building_block(prev2, prev, filters, is_training, projection_shortcut, strid
       filters: The number of filters for the convolutions.
       is_training: A Boolean for whether the model is in training or inference
         mode. Needed for batch normalization.
-      projection_shortcut: The function to use for projection shortcuts (typically
+      projection_shortcut_2: The function to use for projection shortcuts (typically
+        a 1x1 convolution when downsampling the input).
+      projection_shortcut_1: The function to use for projection shortcuts (typically
         a 1x1 convolution when downsampling the input).
       strides: The block's stride. If greater than 1, this block will ultimately
         downsample the input.
@@ -41,13 +43,16 @@ def building_block(prev2, prev, filters, is_training, projection_shortcut, strid
     Returns:
       (prev, The output tensor of the block.)
     """
+
+    prev_link = prev
     pre_activation_1 = batch_norm_relu(prev, is_training, data_format)
 
-    if projection_shortcut is not None:
-        prev = projection_shortcut(pre_activation_1)
+    if projection_shortcut_1 is not None:
+        prev = projection_shortcut_1(pre_activation_1)
 
+    if projection_shortcut_2 is not None:
         pre_activation_2 = batch_norm_relu(prev2, is_training, data_format)
-        prev2 = projection_shortcut(pre_activation_2)
+        prev2 = projection_shortcut_2(pre_activation_2)
 
     k = tf.get_variable("k", shape=[], initializer=tf.initializers.random_uniform(-0.1, 0))
     prev = (1-k) * prev
@@ -69,7 +74,7 @@ def building_block(prev2, prev, filters, is_training, projection_shortcut, strid
         data_format=data_format
     )
 
-    return prev, prev2 + prev + conv
+    return prev_link, prev2 + prev + conv
 
 
 def block_layer(prev2, prev, filters, blocks, strides, is_training, name,
@@ -105,12 +110,17 @@ def block_layer(prev2, prev, filters, blocks, strides, is_training, name,
 
         with tf.variable_scope(name_or_scope=None, default_name="LMNet-Layer"):
             prev2, prev = building_block(prev2, prev, filters, is_training,
-                                         projection_shortcut,
+                                         projection_shortcut, projection_shortcut,
                                          strides, data_format)
 
-    for _ in range(1, blocks):
         with tf.variable_scope(name_or_scope=None, default_name="LMNet-Layer"):
-            prev2, prev = building_block(prev2, prev, filters, is_training, None, 1, data_format)
+            prev2, prev = building_block(prev2, prev, filters, is_training,
+                                         projection_shortcut, None,
+                                         1, data_format)
+
+    for _ in range(2, blocks):
+        with tf.variable_scope(name_or_scope=None, default_name="LMNet-Layer"):
+            prev2, prev = building_block(prev2, prev, filters, is_training, None, None, 1, data_format)
 
     return prev2, tf.identity(prev, name)
 
