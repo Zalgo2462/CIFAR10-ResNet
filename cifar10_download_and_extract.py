@@ -11,6 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+#
+# This is a derivative work created by Logan Lembke.
+#
 # ==============================================================================
 
 """Downloads and extracts the binary version of the CIFAR-10 dataset."""
