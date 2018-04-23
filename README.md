@@ -10,6 +10,8 @@ bibtex ./nips_2017.aux
 pdflatex ./nips_2017.tex
 xdg-open ./nips_2017.pdf
 ```
+Or just open the pdf at ./paper/nips_2017.pdf
+
 # Getting the Data
 Simply run `python3 cifar10_download_and_extract.py`
 
