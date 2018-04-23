@@ -6,6 +6,8 @@ A ResNet implementation for CIFAR10
 git checkout master
 cd paper/
 pdflatex ./nips_2017.tex
+bibtex ./nips_2017.aux
+pdflatex ./nips_2017.tex
 xdg-open ./nips_2017.pdf
 ```
 # Getting the Data
